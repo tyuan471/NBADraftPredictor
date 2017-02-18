@@ -21,7 +21,7 @@ def get_player_draft_class(row):
     for td in row.find_all('td'):
         stat = td.get('data-stat')
         if stat == "pick_overall":
-            pick = td.string
+            pick = int(td.string)
             if pick <= PICKS_PER_ROUND:
                 return "round-1"
             return "round-2"
@@ -32,7 +32,6 @@ def get_player_link(row):
         if stat == "player":
             link = td.get('data-append-csv')
             link = link[0] + "/" + link + ".html"
-            print(link)
             return link
 
 def get_cbb_link(html):
@@ -59,7 +58,6 @@ def generate_dataset(url):
                 player_url = BASE_URL + get_player_link(row)
                 r = requests.get(player_url)
                 cbb_url = get_cbb_link(r.text)
-                print(cbb_url)
                 if cbb_url is None:
                     continue
                 r = requests.get(cbb_url)
