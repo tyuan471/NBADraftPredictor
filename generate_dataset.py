@@ -60,6 +60,8 @@ def generate_dataset(url):
                 r = requests.get(player_url)
                 cbb_url = get_cbb_link(r.text)
                 print(cbb_url)
+                if cbb_url is None:
+                    continue
                 r = requests.get(cbb_url)
                 arff_str = scraper.scrape_page(r.text) 
                 arff_str = arff_str + DELIM + draft_class
