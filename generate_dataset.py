@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import scraper
 import sys
+import datetime
 
 DELIM = ","
 BASE_URL = "http://www.basketball-reference.com/players/"
@@ -55,15 +56,35 @@ def generate_dataset(url):
         if class_id == "stats":
             for row in t.tbody.find_all('tr'):
                 draft_class = get_player_draft_class(row)
-                player_url = BASE_URL + get_player_link(row)
+                extension = get_player_link(row)
+                if extension is None:
+                    continue
+                player_url = BASE_URL + extension
                 r = requests.get(player_url)
                 cbb_url = get_cbb_link(r.text)
+                print(cbb_url)
                 if cbb_url is None:
                     continue
                 r = requests.get(cbb_url)
                 arff_str = scraper.scrape_page(r.text) 
                 arff_str = arff_str + DELIM + draft_class
                 print(arff_str)
-        
+
+def run_draft_scrapes():
+    if len(sys.argv) < 2:
+        print("Usage: python generate_dataset.py <start_year> <end_year>")
+        return
+
+    start_year = int(sys.argv[1])
+    if len(sys.argv) < 3:
+        end_year = datetime.datetime.now().year    
+    else:
+        end_year = int(sys.argv[2])
+
+    for year in range(start_year,end_year + 1):
+        url = "http://www.basketball-reference.com/draft/NBA_" + \
+            str(year) + ".html"
+        generate_dataset(url)    
+
 if __name__ == "__main__":
-    generate_dataset(sys.argv[1])
+   run_draft_scrapes()
