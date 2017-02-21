@@ -8,6 +8,7 @@ DELIM = ","
 BASE_URL = "http://www.basketball-reference.com/players/"
 PICKS_PER_ROUND = 30
 
+
 def fmt_draft_class(draft_class):
     if (draft_class == 1):
         #print("Round 1")
@@ -71,15 +72,30 @@ def generate_dataset(url):
                 print(arff_str)
 
 def run_draft_scrapes():
-    if len(sys.argv) < 2:
+    # Make sure we have 1 or 2 parameters.
+    if len(sys.argv) < 2 or len(sys.argv) > 3:
         print("Usage: python generate_dataset.py <start_year> <end_year>")
         return
-
+    
+    # If the second year is blank, fill it in with the current year.
     start_year = int(sys.argv[1])
     if len(sys.argv) < 3:
-        end_year = datetime.datetime.now().year    
+        # Do current year if draft has past. Otherwise do last year.
+        if datetime.datetime.now().month > 7:
+            end_year = datetime.datetime.now().year    
+        else:
+            end_year = datetime.datetime.now().year - 1
     else:
         end_year = int(sys.argv[2])
+        # Make sure the second year is higher than the first year.
+        if sys.argv[2] < sys.argv[1]:
+            print("End year must be later than Start year.")
+            return
+
+        # Ensure second year is not greater than current year.
+        if sys.argv[2] > datetime.datetime.now().year:
+            print("End year cannot be later than the current year.")
+            return
 
     for year in range(start_year,end_year + 1):
         url = "http://www.basketball-reference.com/draft/NBA_" + \
