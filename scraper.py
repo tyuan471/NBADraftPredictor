@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+from bs4 import Comment
 import sys
 
 ITEMPROP = 'itemprop'
@@ -116,7 +117,7 @@ def find_stats(table, stats):
             stats[FT_3PT_FG_PG] = t.string
 
 def find_advanced_stats(table, stats):
-    #print("Find advnaced stats called!")
+    print("Find advnaced stats called!")
     #print(table.find_all('tfoot'))
 
     #for foot_tag in table.get('tfoot'):
@@ -146,8 +147,12 @@ def find_height_and_weight(spans, stats):
                 #print(stats[FT_WEIGHT])
 
 def scrape_page(html_str):
-    #soup = BeautifulSoup(open("test_page.html"))
     soup = BeautifulSoup(html_str)
+    comments=soup.find_all(text=lambda text:isinstance(text, Comment))
+    print(len(comments))
+    #for c in comments:
+     #   print(c)
+    #return
     paragraphs = soup.find_all('p')
     tables = soup.find_all('table')
     
@@ -157,12 +162,13 @@ def scrape_page(html_str):
 
     for table_tag in tables:
         table_id = table_tag.get(ID)
+        print(table_id)
         if table_id=="players_per_game":
             find_stats(table_tag, stats)
             break
-        #elif table_id == "players_advanced":
-            #print("Found advanced table")
-            #find_advanced_stats(table_tag, stats)
+        elif table_id == "players_advanced":
+            print("Found advanced table")
+            find_advanced_stats(table_tag, stats)
     
     arff_str = dict_to_arff(stats)
     return arff_str
