@@ -49,6 +49,7 @@ def get_cbb_link(html):
                         return link
 
 def generate_dataset(url):
+    # Get HTML from site.
     r = requests.get(url)
     soup = BeautifulSoup(r.text, 'html.parser')
     table = soup.find_all('table')
@@ -77,14 +78,16 @@ def run_draft_scrapes():
         print("Usage: python generate_dataset.py <start_year> <end_year>")
         return
     
+    date = datetime.datetime.now()
+
     # If the second year is blank, fill it in with the current year.
     start_year = int(sys.argv[1])
     if len(sys.argv) < 3:
         # Do current year if draft has past. Otherwise do last year.
-        if datetime.datetime.now().month > 7:
-            end_year = datetime.datetime.now().year    
+        if date.month > 7:
+            end_year = date.year
         else:
-            end_year = datetime.datetime.now().year - 1
+            end_year = date.year - 1
     else:
         end_year = int(sys.argv[2])
         # Make sure the second year is higher than the first year.
@@ -93,10 +96,10 @@ def run_draft_scrapes():
             return
 
         # Ensure second year is not greater than current year.
-        if sys.argv[2] > datetime.datetime.now().year:
+        if sys.argv[2] > date.year:
             print("End year cannot be later than the current year.")
             return
-
+    # Loop through all years selected, generating data set.
     for year in range(start_year,end_year + 1):
         url = "http://www.basketball-reference.com/draft/NBA_" + \
             str(year) + ".html"
