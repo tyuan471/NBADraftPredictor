@@ -1,6 +1,9 @@
 from bs4 import BeautifulSoup
 from bs4 import Comment
+import re
 import sys
+
+
 
 ITEMPROP = 'itemprop'
 ID = 'id'
@@ -21,6 +24,11 @@ FT_2PT_FG_PG = "2-pt-field-goal-per-game" # 2 point field goals per game
 FT_3PT_FG_PG = "3-pt-field-goal-per-game" # 3 point field goals per game
 FT_PER = 'player-efficiency-ratio' # player efficiency ratio feature
 FT_WS = 'win-shares' # win shares feature
+FT_TS_PCT = 'true-shooting-pct' # true shooting percentage feature
+FT_EFG_PCT = 'effective-field-goal-pct' # effective field goal percentage feature
+FT_FG3A_PCT = '3pt-attempt-rate' # three point attempt rate feature
+FT_TRB_PCT = 'total-rebound-pct' # total rebound percentage feature
+
 DELIM = ","
 UNKNOWN = "?"
 
@@ -117,7 +125,7 @@ def find_stats(table, stats):
             stats[FT_3PT_FG_PG] = t.string
 
 def find_advanced_stats(table, stats):
-    print("Find advnaced stats called!")
+    print("Find advanced stats called!")
     #print(table.find_all('tfoot'))
 
     #for foot_tag in table.get('tfoot'):
@@ -132,6 +140,36 @@ def find_advanced_stats(table, stats):
             #print('Player efficiency ratio')
             #print(t.string)
             stats[FT_PER] = t.string
+        elif data == 'ts_pct':
+            stats[FT_TS_PCT] = t.string
+        elif data == 'efg_pct':
+            stats[FT_EFG_PCT] = t.string
+        elif data == 'fg3a_per_fga_per':
+            stats[FT_FG3A_PCT] = t.string
+        elif data == 'trb_pct':
+            stats[FT_TRB_PCT] = t.string
+        elif data == 'ast_pct':
+            stats[FT_AST_PCT] = t.string
+        elif data == 'stl_pct':
+            stats[FT_STL_PCT] = t.string
+        elif data == 'blk_pct':
+            stats[FT_BLK_PCT] = t.string
+        elif data == 'tov_pct':
+            stats[FT_TOV_PCT] = t.string
+        elif data == 'usg_pct':
+            stats[FT_USG_PCT] = t.string
+        elif data == 'ows':
+            stats[FT_OWS] = t.string
+        elif data == 'dws':
+            stats[FT_DWS] = t.string
+        elif data == 'ws_per_40':
+            stats[FT_WS_PER_40] = t.string
+        elif data == 'obpm':
+            stats[FT_OBPM] = t.string
+        elif data == 'dbpm':
+            stats[FT_DBPM] = t.string
+        elif data == 'bpm':
+            stats[FT_BPM] = t.string
 
 def find_height_and_weight(spans, stats):
     for span_tag in spans:
@@ -149,10 +187,11 @@ def find_height_and_weight(spans, stats):
 def scrape_page(html_str):
     soup = BeautifulSoup(html_str)
     comments=soup.find_all(text=lambda text:isinstance(text, Comment))
-    print(len(comments))
-    #for c in comments:
-     #   print(c)
-    #return
+    advanced_soup = None
+    for c in comments:
+        if (re.search('<caption>Advanced Table', c.string, flags=0)):
+            advanced_soup = BeautifulSoup(c.string)     
+            print(advanced_soup)
     paragraphs = soup.find_all('p')
     tables = soup.find_all('table')
     
